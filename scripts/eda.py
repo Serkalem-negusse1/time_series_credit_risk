@@ -70,6 +70,22 @@ def plot_boxplots(df):
     plt.title("Boxplots to Detect Outliers")
     plt.show()
 
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+
+def autocorrelation_plots(df, column):
+    """Plot autocorrelation and partial autocorrelation."""
+    df[column] = pd.to_numeric(df[column], errors='coerce')
+    
+    plt.figure(figsize=(12, 6))
+    plot_acf(df[column], lags=50)
+    plt.show()
+
+    plt.figure(figsize=(12, 6))
+    plot_pacf(df[column], lags=50)
+    plt.show()
+
+
+
 def save_cleaned_data(df, file_path):
     """Save the cleaned dataset to a new CSV file."""
     df.to_csv(file_path)
