@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import statsmodels.api as sm
 
 def load_data(file_path):
     """Load the dataset from a CSV file."""
@@ -70,7 +72,11 @@ def plot_boxplots(df):
     plt.title("Boxplots to Detect Outliers")
     plt.show()
 
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+def seasonal_decomposition(df, column):
+    df[column] = pd.to_numeric(df[column], errors='coerce')
+    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=365)
+    decomposition.plot()
+    plt.show()
 
 def autocorrelation_plots(df, column):
     """Plot autocorrelation and partial autocorrelation."""
@@ -83,7 +89,6 @@ def autocorrelation_plots(df, column):
     plt.figure(figsize=(12, 6))
     plot_pacf(df[column], lags=50)
     plt.show()
-
 
 
 def save_cleaned_data(df, file_path):
@@ -106,14 +111,16 @@ if __name__ == "__main__":
     save_cleaned_data(df_cleaned, "E:/data/Data11/preprocessed_financial_data.csv")
     
     # Print summary statistics and check for missing values
-    summary_statistics(df_cleaned)
-    missing_values(df_cleaned)
+    #summary_statistics(df_cleaned)
+    #missing_values(df_cleaned)
     
     # Visualize the data
-    visualize_data(df_cleaned)
+    #visualize_data(df_cleaned)
     
     # Additional visualizations
-    correlation_heatmap(df_cleaned)
-    missing_data_visualization(df_cleaned)
-    plot_histograms(df_cleaned)
-    plot_boxplots(df_cleaned)
+    #correlation_heatmap(df_cleaned)
+    #autocorrelation_plots(df_cleaned)
+    #seasonal_decomposition(df_cleaned)
+    #missing_data_visualization(df_cleaned)
+    #plot_histograms(df_cleaned)
+    #plot_boxplots(df_cleaned)
