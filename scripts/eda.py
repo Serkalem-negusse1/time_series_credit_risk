@@ -1,8 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 import statsmodels.api as sm
+#from tabulate import tabulate
+from prettytable import PrettyTable
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 def load_data(file_path):
     """Load the dataset from a CSV file."""
@@ -15,8 +17,18 @@ def clean_data(df):
     return df
 
 def summary_statistics(df):
-    """Print summary statistics of the dataset."""
-    print(df.describe())
+    """Print summary statistics of the dataset in a properly formatted table."""
+    df.columns = df.columns.str.strip().str.replace(r'\s+', ' ', regex=True)
+    stats = df.describe()
+    table = PrettyTable()
+    table.field_names = ["Statistic"] + list(stats.columns) 
+
+    for index, row in stats.iterrows():
+        table.add_row([index] + list(row))
+
+    print(table)
+    return stats  
+
 
 def missing_values(df):
     """Check for missing values."""
@@ -30,10 +42,7 @@ def visualize_data(df):
     plt.figure(figsize=(12, 6))
     
     for column in df.columns:
-        # Convert each column to numeric (if it's not already)
         df[column] = pd.to_numeric(df[column], errors='coerce')
-        
-        # Ensure the column name is treated as a string for labeling
         plt.plot(df.index, df[column], label=str(column))
     
     plt.legend()
@@ -73,13 +82,26 @@ def plot_boxplots(df):
     plt.show()
 
 def seasonal_decomposition(df, column, period=30):
-    df = df.copy()  
-    df.index = pd.to_datetime(df.index)
-    df[column] = pd.to_numeric(df[column], errors='coerce')
-    df = df[[column]].dropna()
-    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=period)
+ import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
 
-    plt.figure(figsize=(12, 8))
+def seasonal_decomposition(df, column, period=30):
+    df = df.copy()  
+
+    try:
+        df.index = pd.to_datetime(df.index, errors='coerce', infer_datetime_format=True)
+    except Exception as e:
+        raise ValueError(f"Error parsing datetime index: {e}")
+
+    df = df.dropna(subset=[column])
+    
+    df[column] = pd.to_numeric(df[column], errors='coerce')
+
+    if len(df) < period:
+        raise ValueError(f"Not enough data points ({len(df)}) for the specified period ({period})")
+
+    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=period)
     decomposition.plot()
     plt.show()
 
@@ -100,6 +122,10 @@ def save_cleaned_data(df, file_path):
     """Save the cleaned dataset to a new CSV file."""
     df.to_csv(file_path)
     print(f"Data saved to {file_path}")
+
+df = pd.read_csv("E:/data/Data11/preprocessed_financial_data.csv", header=[0], index_col=0)  # Ensure Date is used as index
+df.columns = df.columns.str.strip().str.replace(r'\s+', '_', regex=True)  # Remove spaces
+
 
 # Main script for running everything
 if __name__ == "__main__":
