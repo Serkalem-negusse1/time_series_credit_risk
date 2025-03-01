@@ -72,11 +72,17 @@ def plot_boxplots(df):
     plt.title("Boxplots to Detect Outliers")
     plt.show()
 
-def seasonal_decomposition(df, column):
+def seasonal_decomposition(df, column, period=30):
+    df = df.copy()  
+    df.index = pd.to_datetime(df.index)
     df[column] = pd.to_numeric(df[column], errors='coerce')
-    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=365)
+    df = df[[column]].dropna()
+    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=period)
+
+    plt.figure(figsize=(12, 8))
     decomposition.plot()
     plt.show()
+
 
 def autocorrelation_plots(df, column):
     """Plot autocorrelation and partial autocorrelation."""
