@@ -90,7 +90,6 @@ def autocorrelation_plots(df, column):
     plot_pacf(df[column], lags=50)
     plt.show()
 
-
 def save_cleaned_data(df, file_path):
     """Save the cleaned dataset to a new CSV file."""
     df.to_csv(file_path)
