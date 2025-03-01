@@ -123,22 +123,16 @@ def save_cleaned_data(df, file_path):
     df.to_csv(file_path)
     print(f"Data saved to {file_path}")
 
-df = pd.read_csv("E:/data/Data11/preprocessed_financial_data.csv", header=[0], index_col=0)  # Ensure Date is used as index
-df.columns = df.columns.str.strip().str.replace(r'\s+', '_', regex=True)  # Remove spaces
+df = pd.read_csv("E:/data/Data11/preprocessed_financial_data.csv", header=[0], index_col=0)  
+df.columns = df.columns.str.strip().str.replace(r'\s+', '_', regex=True)  
 
 
 # Main script for running everything
 if __name__ == "__main__":
-    # Define the file path
     file_path = "E:/data/Data11/historical_financial_data.csv"
     
-    # Load the raw data
     df = load_data(file_path)
-    
-    # Clean the data
     df_cleaned = clean_data(df)
-    
-    # Save the cleaned data with a different name
     save_cleaned_data(df_cleaned, "E:/data/Data11/preprocessed_financial_data.csv")
     
     # Print summary statistics and check for missing values
