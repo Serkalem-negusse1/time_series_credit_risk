@@ -16,20 +16,6 @@ def clean_data(df):
     df.columns = [' '.join(col).strip() for col in df.columns.values]
     return df
 
-def summary_statistics(df):
-    """Print summary statistics of the dataset in a properly formatted table."""
-    df.columns = df.columns.str.strip().str.replace(r'\s+', ' ', regex=True)
-    stats = df.describe()
-    table = PrettyTable()
-    table.field_names = ["Statistic"] + list(stats.columns) 
-
-    for index, row in stats.iterrows():
-        table.add_row([index] + list(row))
-
-    print(table)
-    return stats  
-
-
 def missing_values(df):
     """Check for missing values."""
     print("Missing Values:\n", df.isnull().sum())
@@ -81,30 +67,33 @@ def plot_boxplots(df):
     plt.title("Boxplots to Detect Outliers")
     plt.show()
 
-def seasonal_decomposition(df, column, period=30):
- import pandas as pd
-import matplotlib.pyplot as plt
-import statsmodels.api as sm
-
-def seasonal_decomposition(df, column, period=30):
-    df = df.copy()  
-
-    try:
-        df.index = pd.to_datetime(df.index, errors='coerce', infer_datetime_format=True)
-    except Exception as e:
-        raise ValueError(f"Error parsing datetime index: {e}")
-
-    df = df.dropna(subset=[column])
+def volatility_analysis(df):
+    """Compute and visualize volatility using daily percentage change and rolling standard deviation."""
+    df_returns = df.pct_change().dropna()
+    rolling_std = df_returns.rolling(window=30).std()
     
-    df[column] = pd.to_numeric(df[column], errors='coerce')
-
-    if len(df) < period:
-        raise ValueError(f"Not enough data points ({len(df)}) for the specified period ({period})")
-
-    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=period)
-    decomposition.plot()
+    plt.figure(figsize=(12, 6))
+    for column in df_returns.columns:
+        plt.plot(rolling_std.index, rolling_std[column], label=f'{column} Volatility')
+    
+    plt.title("Rolling 30-Day Standard Deviation (Volatility)")
+    plt.xlabel("Date")
+    plt.ylabel("Volatility")
+    plt.legend()
+    plt.grid()
     plt.show()
 
+def seasonal_decomposition(df, column, period=30):
+    """Perform seasonal decomposition on a selected column."""
+    df = df.copy()
+    df.index = pd.to_datetime(df.index, errors='coerce')
+    df[column] = pd.to_numeric(df[column], errors='coerce')
+    df = df.dropna(subset=[column])
+    
+    decomposition = sm.tsa.seasonal_decompose(df[column], model='additive', period=period)
+    decomposition.plot()
+    plt.suptitle(f"Seasonal Decomposition of {column}")
+    plt.show()
 
 def autocorrelation_plots(df, column):
     """Plot autocorrelation and partial autocorrelation."""
