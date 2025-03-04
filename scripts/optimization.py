@@ -21,3 +21,4 @@ if __name__ == "__main__":
     
     sharpe_ratio = compute_sharpe_ratio(df["Portfolio_Return"])
     print(f"Sharpe Ratio: {sharpe_ratio:.2f}")
+    
