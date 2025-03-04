@@ -1,10 +1,16 @@
+import yfinance as yf
 import pandas as pd
 
-# Load the dataset, skipping the first row (Ticker row)
-df = pd.read_csv("E:/data/Data11/preprocessed_financial_data.csv", header=[0], index_col=0)  # Ensure Date is used as index
+def fetch_data(tickers, start_date, end_date):
+    """Fetch historical data for given tickers."""
+    data = {ticker: yf.download(ticker, start=start_date, end=end_date) for ticker in tickers}
+    df = pd.DataFrame({ticker: data[ticker]['Adj Close'] for ticker in tickers})
+    df.to_csv("results/financial_data.csv")
+    return df
 
-# Rename columns to remove duplicate names (if needed)
-df.columns = df.columns.str.strip().str.replace(r'\s+', '_', regex=True)  # Remove spaces
-
-# Check if the columns are cleaned
-print(df.head())  # Ensure proper format
+if __name__ == "__main__":
+    tickers = ["TSLA", "BND", "SPY"]
+    start_date = "2015-01-01"
+    end_date = "2025-01-31"
+    df = fetch_data(tickers, start_date, end_date)
+    print("Data saved as financial_data.csv")
